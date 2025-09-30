@@ -52,18 +52,10 @@ func (t *LocalTunnel) Start(ctx context.Context) error {
 		default:
 		}
 
-		t.client, err = sshx.Open(t.SSHConfig)
-		if err != nil {
-			slog.Warn("[local] SSH connect failed, retrying", "local", t.LocalAddr, "remote", t.RemoteAddr, "err", err)
-			time.Sleep(t.retryInterval)
-			continue
-		}
 		t.listener, err = net.Listen("tcp", t.LocalAddr)
 		if err != nil {
-			t.client.Close()
 			return err
 		}
-
 		slog.Info("[local] started", "local", t.LocalAddr, "remote", t.RemoteAddr)
 		ctxTunnel, cancel := context.WithCancel(ctx)
 		t.cancelFunc = cancel
@@ -108,6 +100,18 @@ func (t *LocalTunnel) acceptLoop(ctx context.Context) {
 func (t *LocalTunnel) handleConn(localConn net.Conn) {
 	defer localConn.Close()
 	slog.Info("[local] Access", "from", localConn.RemoteAddr(), "to", t.RemoteAddr)
+	var (
+		err error
+	)
+	for {
+		t.client, err = sshx.Open(t.SSHConfig)
+		if err == nil {
+			break
+		}
+		slog.Warn("[local] SSH connect failed, retrying...", "err", err)
+		time.Sleep(t.retryInterval)
+	}
+
 	remoteConn, err := t.client.Dial("tcp", t.RemoteAddr)
 	if err != nil {
 		slog.Warn("[local] Remote dial failed", "local", localConn.RemoteAddr(), "remote", t.RemoteAddr, "err", err)

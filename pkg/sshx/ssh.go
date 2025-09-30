@@ -22,6 +22,16 @@ type Config struct {
 	Timeout    int    `yaml:"timeout" mapstructure:"timeout" json:"timeout"`             // 连接超时时间（秒），默认 10
 }
 
+// Ping 测试 SSH 是否可连接
+func Ping(cfg Config) bool {
+	client, err := Open(cfg)
+	if err != nil {
+		return false
+	}
+	defer client.Close()
+	return true
+}
+
 // Open 建立 SSH 连接并返回客户端实例
 func Open(cfg Config) (*ssh.Client, error) {
 	if cfg.Port == 0 {
@@ -34,8 +44,7 @@ func Open(cfg Config) (*ssh.Client, error) {
 	if cfg.Timeout == 0 {
 		cfg.Timeout = 10
 	}
-	client, err := ssh.Dial("tcp",
-		fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
+	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
 		&ssh.ClientConfig{
 			User:            cfg.User,
 			Auth:            authMethods,

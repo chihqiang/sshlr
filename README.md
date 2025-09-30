@@ -1,6 +1,7 @@
 # sshlr
 
 ## Project Introduction
+
 sshlr is a lightweight SSH port forwarding tool written in Go, providing more flexible port forwarding management capabilities than the native SSH command. It can manage multiple local and remote port forwarding tunnels simultaneously, and supports features like configuration hot reloading and automatic retry.
 
 ## Features
@@ -32,7 +33,7 @@ sudo mv sshlr /usr/local/bin/
 
 ### Method 2: Use `go install`
 
-```
+```bash
 # Install the latest version to your Go bin directory (~/.go/bin)
 go install github.com/chihqiang/sshlr/cmd/sshlr@latest
 ```
