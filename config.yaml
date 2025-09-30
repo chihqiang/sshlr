@@ -1,0 +1,25 @@
+# ✅ SSH client connection configuration: supports multiple remote servers
+ssh:
+  - name: serverA                # Unique identifier, referenced in tunnels and reverse_tunnels
+    user: root                   # SSH login username
+    host: 127.0.0.1              # SSH host address (can be IP or domain)
+    port: 8022                   # SSH port (default 22, customizable)
+    password: "123456"           # Password authentication (alternative to private key)
+
+    # 🔐 Private key authentication (optional, omit password if using key)
+    # private_key: ~/.ssh/id_rsa           # Path to private key file (supports ~)
+    # private_key: |                       # Or paste PEM formatted private key directly (supports multiple types)
+    #   <your-private-key-content>
+    # passphrase: "your_key_passphrase"   # Passphrase for encrypted private key (if any)
+
+# ✅ Forward tunnel configuration: local port forwarding ➜ remote server (equivalent to ssh -L)
+local:
+  - ssh: serverA                 # Which SSH client to use (matches name above)
+    local: 127.0.0.1:8888        # Local listen address (access this port to forward)
+    remote: 127.0.0.1:80         # Forward target address (remote service port, e.g., nginx)
+
+# ✅ Reverse tunnel configuration: remote port forwarding ➜ local service (equivalent to ssh -R)
+remote:
+  - ssh: serverA
+    local: 127.0.0.1:8080        # Local service address (service running on your machine)
+    remote: 127.0.0.1:8088       # Remote server listen port (accessible externally)
