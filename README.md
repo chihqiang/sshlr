@@ -2,14 +2,13 @@
 
 ## Project Introduction
 
-sshlr is a lightweight SSH port forwarding tool written in Go, providing more flexible port forwarding management capabilities than the native SSH command. It can manage multiple local and remote port forwarding tunnels simultaneously, and supports features like configuration hot reloading and automatic retry.
+sshlr is a lightweight SSH port forwarding tool written in Go, providing more flexible port forwarding management capabilities than the native SSH command. It can manage multiple local and remote port forwarding tunnels simultaneously
 
 ## Features
 
 - **Multiple types of port forwarding**: Supports local port forwarding (similar to `ssh -L`) and remote port forwarding (similar to `ssh -R`)
 - **Multi-connection management**: Can configure multiple SSH connections and multiple forwarding tunnels at the same time
 - **Multiple authentication methods**: Supports password authentication and private key authentication (including keys with passphrases)
-- **Configuration hot reloading**: Automatically restarts tunnels after configuration file changes, no manual intervention required
 - **Automatic retry mechanism**: Automatically retries after connection failures to improve stability
 - **Graceful shutdown**: Supports signal handling to ensure proper resource release
 - **Flexible configuration locations**: Supports placing configuration files in multiple locations
