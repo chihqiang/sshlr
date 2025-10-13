@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"github.com/chihqiang/sshlr/conf"
 	"github.com/chihqiang/sshlr/pkg/tunnel"
 	"gopkg.in/yaml.v3"
@@ -13,23 +14,41 @@ import (
 
 var (
 	files = []string{"config.yaml", "~/.ssh/sshlr.yaml", "/etc/sshlr.yaml"}
+	//cat config.yaml| base64
+	configBase64Content string
 )
 
 func init() {
 	slog.SetLogLoggerLevel(slog.LevelDebug)
 }
 
-func main() {
-	// 获取配置文件路径
+func loadConfig() (*conf.Config, error) {
+	var data []byte
 	filename, err := conf.GetConfigPath(files...)
-	if err != nil {
-		slog.Error("No configuration file found", "err", err)
-		return
+	if err == nil {
+		// 优先读取外部文件
+		data, err = os.ReadFile(filename)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// 没有外部文件，使用嵌入 Base64 配置
+		data, err = base64.StdEncoding.DecodeString(configBase64Content)
+		if err != nil {
+			return nil, err
+		}
 	}
-	file, err := os.ReadFile(filename)
 	var cfg conf.Config
-	if err := yaml.Unmarshal(file, &cfg); err != nil {
-		slog.Error("Failed to parse YAML config", "err", err)
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		return nil, err
+	}
+	return &cfg, nil
+}
+
+func main() {
+	cfg, err := loadConfig()
+	if err != nil {
+		slog.Error("load Config err", "err", err)
 		return
 	}
 	// 创建 TunnelManager
